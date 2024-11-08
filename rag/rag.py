@@ -1,4 +1,5 @@
 import os
+import time
 
 from openai import OpenAI
 
@@ -44,5 +45,19 @@ rag = Rag()
 #print(rag.search_in_documents("Кто такой Генрих 13"))
 #print(rag.chunker.create_chunk_db())
 #print(rag.search_in_documents(""))
-question = "Сколько у генриха 13 было сыновей"
+start_time = time.time()
+question = "В какие в года правил Генрих 13?"
 print(rag.query(question))
+print(str(time.time() - start_time) + " seconds")
+start_time = time.time()
+question = "В какие в года правил Генрих 13?"
+print(rag.query(question))
+print(str(time.time() - start_time) + " seconds")
+start_time = time.time()
+question = "Кто такой Михаил Мерзликин?"
+print(rag.query(question))
+print(str(time.time() - start_time) + " seconds")
+start_time = time.time()
+question = "Основные столпы RAG архитектуры"
+print(rag.query(question))
+print(str(time.time() - start_time) + " seconds")
