@@ -15,7 +15,11 @@ def answer_with_documentation(doc_array: list[str] | str, query: str, client: Op
         "Indicate if the request does not have an answer in the documentation. "
         "Formulate responses in a user-friendly way (e.g., a list if there are multiple items in the response). "
         "Provide examples of use cases if they are present in the documentation. "
-        "Point to sections of the documentation that may be helpful in further exploring the question."
+        "Point to sections of the documentation that may be helpful in further exploring the question. "
+        "When you are quoting, or telling information from documentation,"
+        " provide a link to this documentation in brackets. "
+        "If there are no documentation about this question say 'There are no documentation about this question' "
+        "and do not say anything else"
     )
 
     documentation = "\n".join(doc_array)

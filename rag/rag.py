@@ -39,25 +39,16 @@ class Rag:
         res = self.chunker.find_best_in_db(query=q, k=self.k)
         return res
 
+    def create_db(self):
+        self.chunker.create_chunk_db()
+
 
 rag = Rag()
-#print(rag.query("Сколько месяцев в году?"))
-#print(rag.search_in_documents("Кто такой Генрих 13"))
-#print(rag.chunker.create_chunk_db())
-#print(rag.search_in_documents(""))
-start_time = time.time()
-question = "В какие в года правил Генрих 13?"
-print(rag.query(question))
-print(str(time.time() - start_time) + " seconds")
-start_time = time.time()
-question = "В какие в года правил Генрих 13?"
-print(rag.query(question))
-print(str(time.time() - start_time) + " seconds")
-start_time = time.time()
-question = "Кто такой Михаил Мерзликин?"
-print(rag.query(question))
-print(str(time.time() - start_time) + " seconds")
-start_time = time.time()
-question = "Основные столпы RAG архитектуры"
-print(rag.query(question))
-print(str(time.time() - start_time) + " seconds")
+questions = (["В какие в года правил Генрих 13?",
+              "Как за 10 лет изменилось количество телепрограмм, привлекающих более 4-х млн. зрителей в Великобритании",
+              "Сколько заработал амазон на рекламе в 2023 году"])
+
+for question in questions:
+    start_time = time.time()
+    print(rag.query(question))
+    print(str(time.time() - start_time) + " seconds")
