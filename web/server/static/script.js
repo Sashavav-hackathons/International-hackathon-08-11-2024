@@ -1,16 +1,4 @@
 const userInput = document.getElementById('user-input');
-const sendInput = document.getElementById('send-btn');
-
-
-// sendInput?.addEventListener('click', sendMessage);
-// Обработка события ввода
-// userInput?.addEventListener("keydown", function(event) {
-//     console.error("хуй");
-//     if (event.key === 'Enter' && !event.shiftKey) {
-//         event.preventDefault();
-//         sendMessage();
-//     }
-// });
 
 // Увеличиваем высоту на Shift+Enter
 userInput?.addEventListener("keydown", function(event) {
@@ -27,6 +15,7 @@ userInput?.addEventListener('keydown', function(event) {
     }
 }, false);
 
+// 
 function sendMessage() {
     const inputElement = document.getElementById("user-input");
     const messageText = inputElement.value.trim();
