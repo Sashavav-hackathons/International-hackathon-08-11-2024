@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from requester import request_router
+from web.server.requester import request_router
 from fastapi.staticfiles import StaticFiles
 
+# Инициализация веб-приложения
 app = FastAPI()
 
 # Настройка CORS
@@ -21,7 +22,8 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 # Роутер запросов
 app.include_router(request_router)
 
-app.mount("/static", StaticFiles(directory="web\\server\\static"), name='static')
+# Добавление статических файлов
+app.mount("/static", StaticFiles(directory="web/server/static"), name='static')
 
 # Запуск приложения через Uvicorn
 if __name__ == '__main__':
