@@ -22,7 +22,7 @@ request_router = APIRouter()
 redis_client = RedisDB()
 
 # Указание папки с шаблонами
-templates = Jinja2Templates(directory="web/server/templates")
+templates = Jinja2Templates(directory="web\\server\\templates")
 
 # Модель данных для запроса
 class QueryRequest(BaseModel):
@@ -54,7 +54,8 @@ def session_page(session_id: str):
 async def query(data: QueryRequest):
 
     user_message = data.message
-    ai_response = model.query(user_message)
+    # ai_response = model.query(user_message)
+    ai_response = user_message
     return {"response": ai_response}
 
 # @request_router.post("/api/load_file")

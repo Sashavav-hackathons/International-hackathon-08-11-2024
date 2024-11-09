@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Чат</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="stylesheet" type= "text/css" href="{{ url_for('static', path='style.css') }}">
-  <script src="{{ url_for('static', path='script.js') }}"> </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат с ИИ</title>
+    <link rel="stylesheet" type= "text/css" href="{{ url_for('static', path='style.css') }}">
+    <script src="{{ url_for('static', path='script.js') }}"> </script>
 </head>
 <body>
-
-<div class="chat-container">
-  <div id="chat-box" class="chat-box"></div>
-  <div class="input-box">
-    <textarea id="user-input" placeholder="Введите сообщение..." rows="1"></textarea>
-    <button onclick="sendMessage()">Отправить</button>
-  </div>
-</div>
-
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <div class="message bot-message">Чем я могу помочь?</div>
+        </div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Сообщить ChatGPT" autofocus>
+            <button id="send-btn" onclick = "sendMessage()">➤</button>
+        </div>
+    </div>
 </body>
 </html>

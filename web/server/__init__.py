@@ -21,7 +21,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 # Роутер запросов
 app.include_router(request_router)
 
-app.mount("/static", StaticFiles(directory="web/server/static"), name='static')
+app.mount("/static", StaticFiles(directory="web\\server\\static"), name='static')
 
 # Запуск приложения через Uvicorn
 if __name__ == '__main__':
