@@ -1,0 +1,22 @@
+
+curl --location 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion' \
+--header 'Authorization: Bearer t1.9euelZrJkIqWmZ6PnJHGysqXnJzMj-3rnpWanJLMlMeXnZGcmc7KypSVis_l9PcUJUNG-e8rXWej3fT3VFNARvnvK11no83n9euelZrLyZXJk4-PxpmTl8ubj8iQmO_8xeuelZrLyZXJk4-PxpmTl8ubj8iQmA.awrGoLmv2tpbtpsOtVzYFNaWtwoGqSi2DbKvUPQ37Lm3cUVJNWyCJx_6oN23HuO7sQ0D2qsN-Nfo3edqn4OpAg' \
+--header 'Content-Type: application/json' \
+--data '{
+  "modelUri": "gpt://bpf2qk3d4udr4rh05rni/yandexgpt/latest",
+  "completionOptions": {
+    "stream": false,
+    "temperature": 0.6,
+    "maxTokens": "2000"
+  },
+  "messages": [
+    {
+      "role": "system",
+      "text": "Ты — умный ассистент."
+    },
+    {
+      "role": "user",
+      "text": "Назови любые три группы товаров в магазине техники!"
+    }
+  ]
+}'
