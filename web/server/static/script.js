@@ -1,5 +1,8 @@
 const userInput = document.getElementById('user-input');
+const sendInput = document.getElementById('send-btn');
 
+
+// sendInput?.addEventListener('click', sendMessage);
 // Обработка события ввода
 // userInput?.addEventListener("keydown", function(event) {
 //     console.error("хуй");
@@ -10,25 +13,19 @@ const userInput = document.getElementById('user-input');
 // });
 
 // Увеличиваем высоту на Shift+Enter
-userInput?.addEventListener("keypress", function(event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
+userInput?.addEventListener("keydown", function(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+}
+}, false);
+
+// Увеличиваем высоту на Shift+Enter
+userInput?.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter' && event.shiftKey) {
         adjustTextareaHeight();
     }
 }, false);
-// Обработка события ввода
-// userInput.addEventListener('keypress', function(event) {
-//     if (event.key === 'Enter' && !event.shiftKey) {
-//         event.preventDefault();
-//         sendMessage();
-//     }
-// });
-
-// // Увеличиваем высоту на Shift+Enter
-// userInput.addEventListener('keydown', function(event) {
-//     if (event.key === 'Enter' && event.shiftKey) {
-//         adjustTextareaHeight();
-//     }
-// });
 
 function sendMessage() {
     const inputElement = document.getElementById("user-input");
@@ -74,9 +71,43 @@ function displaySessionId() {
   }
   // session.textContent = `Сессия: ${sessionId}`;
 }
+//все очень плохо
+async function redirectUser() {
+  const sessionId = getSessionId();
+  try {
+    const response = await fetch("http://localhost:5000/api/query", {
+      method: "GET",
+      body: sessionId
+    });
+
+    const data = await response.json();
+    return data.response;
+  } catch (error) {
+    console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
+    return "Извините, произошла ошибка. Попробуйте еще раз.";
+  }
+
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  displaySessionId(); // Отображаем номер сессии при загрузке страницы  
+  displaySessionId(); // Отображаем номер сессии при загрузке страницы
+  userInput?.addEventListener("input", adjustTextareaHeight());
+  // Обработка нажатия клавиш в поле ввода
+  userInput?.addEventListener('keydown', function(e) {
+    console.log("hui");
+    if (e.key === 'Enter') {
+        if (e.shiftKey) {
+            // Если нажаты Shift + Enter, добавляем перенос строки и увеличиваем высоту поля
+            e.preventDefault();
+            userInput.value += '\n';
+            adjustTextareaHeight();
+        } else {
+            // Если только Enter, отправляем сообщение
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+  });
 });
 
 async function getAIResponse(userMessage, sessionID) {
@@ -91,10 +122,6 @@ async function getAIResponse(userMessage, sessionID) {
         id: sessionID
       })
     });
-    console.log(JSON.stringify({ 
-      message: userMessage,
-      id: sessionID
-    }))
     const data = await response.json();
     return data.response;
   } catch (error) {

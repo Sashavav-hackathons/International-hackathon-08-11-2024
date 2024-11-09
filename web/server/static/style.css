@@ -15,7 +15,8 @@ body {
 }
 
 .chat-container {
-    width: 400px;
+    width: 70vw;
+    height: 70vh;
     max-width: 100%;
     background-color: #333;
     border-radius: 10px;
@@ -24,7 +25,8 @@ body {
 
 .chat-box {
     padding: 15px;
-    height: 300px;
+    min-height: 50vh;
+    max-height: 100%;
     overflow-y: auto;
     background-color: #1a1a1a;
 }
@@ -44,7 +46,13 @@ body {
     color: #f1f1f1;
 }
 
+.user-message{
+    text-align: right;
+    color: #0056b3;
+}
+
 .input-container {
+    justify-content: flex-end;
     display: flex;
     border-top: 1px solid #444;
 }
