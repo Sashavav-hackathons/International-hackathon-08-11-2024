@@ -2,11 +2,7 @@ __pycache__/
 /venv
 .idea/
 .vscode/
-/rag/data/chroma_db/chroma.sqlite3
+rag/data/chroma_db/
 /build/private_consts.py
-<<<<<<< HEAD
-
-/rag/rag/data/chroma_db
-=======
 /rag/data/prepared/
->>>>>>> develop
+
