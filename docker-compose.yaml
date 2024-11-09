@@ -1,0 +1,34 @@
+version: '3.4'
+services:
+
+  sever:
+    build: 
+      dockerfile: docker/server/Dockerfile
+
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 5000:5000
+
+    command: [
+      "uvicorn", "web.server:app --reload",
+      "--host", "0.0.0.0",
+      "==port", "5000"
+    ]
+
+    depends_on:
+      - redis
+
+  redis:
+    container_name: redis
+    build: 
+      context: .
+      dockerfile: docker/redis/Dockerfile
+    
+    environment:
+      - REDIS_HOST=localhost
+      - REDIS_PORT=6180
+    
+    ports:
+      - 6180:6180

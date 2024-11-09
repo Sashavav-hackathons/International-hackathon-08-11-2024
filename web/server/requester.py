@@ -3,17 +3,13 @@ from pydantic import BaseModel
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
-from database.redis_tools import RedisDB
+from web.server.database.redis_tools import RedisDB
 from uuid import uuid4
 
 import sys
 import os
 
-# Настройка путей для импорта rag
-rag_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../rag'))
-sys.path.append(rag_path)
-
-from rag import Rag  
+from rag.rag import Rag  
 
 # Инициализация модели и роутера
 model = Rag()
@@ -50,10 +46,11 @@ def session_page(session_id: str):
     # Логика обработки данных сессии и возврат нужной страницы
     return {"message": f"Welcome to session {session_id}", "session_data": session_data}
 
+# Получение запроса от пользователя
 @request_router.post("/api/query")
 async def query(data: QueryRequest):
-
     user_message = data.message
+    # Получение ответа от генеративной модели
     ai_response = model.query(user_message)
     return {"response": ai_response}
 
