@@ -3,7 +3,7 @@ import time
 
 from openai import OpenAI
 
-from llm.llm_methods import answer_with_documentation, predict_answer
+from llm.llm_methods import answer_with_documentation, predict_answer, is_need_history
 from chunker.chunker import Chunker
 from get_project_root import root_path
 from build.local_variables import YANDEX_GPT_TOKEN
@@ -23,6 +23,7 @@ class Rag:
         self.project_root = project_root
         self.k = 5
         self.chunker = Chunker(project_root)
+        self.history = ""
 
     def query(self, q: str) -> str:
         """
@@ -30,13 +31,16 @@ class Rag:
         :param q: query, that you want to search
         :return: answer to the query
         """
-        q_gen = predict_answer(q, yandex_gpt=self.token)
+        self.history = self.history \
+            if self.history != "" and is_need_history(q, history=self.history, yandex_gpt=self.token) else ""
+        q_gen = predict_answer(q, self.history, yandex_gpt=self.token)
         q_docs = self.search_in_documents(q)
         q_docs = q_docs if isinstance(q_docs, list) else [q_docs]
         q_gen_docs = self.search_in_documents(q_gen)
         q_gen_docs = q_gen_docs if isinstance(q_gen_docs, list) else [q_gen_docs]
         q_docs.extend(q_gen_docs)
-        answer = answer_with_documentation(q_docs, q, yandex_gpt=self.token)
+        answer = answer_with_documentation(q_docs, q, history=self.history, yandex_gpt=self.token)
+        self.history += f"Вопрос: {q}| Ответ: {answer}\n"
         return answer
 
     def search_in_documents(self, q: str) -> list[str]:
@@ -49,13 +53,10 @@ class Rag:
 
 rag = Rag()
 questions = (["В какие в года правил Генрих 13?",
-              "Как за 10 лет изменилось количество телепрограмм, привлекающих более 4-х млн. зрителей в Великобритании",
+              "Как за 5 лет изменилось количество телепрограмм, привлекающих более 4-х млн. зрителей в Великобритании",
+              "А за десять?",
               "Сколько заработал амазон на рекламе в 2023 году",
-              "Какая часть поколения Z считает, что стилизация их аватара в интернете важнее чем их стиль"
-              " в реальной жизни? Какая динамика?",
-              "Что говорит о человеке его аватар?",
-              "Какой процент людей в возрасте от 18 до 64 лет считает, что лучше всего связываются с брендом,"
-              " у которого есть уникальная аудио-идентичность?"])
+              "А за 4 квартала до 2023 года?"])
 
 for question in questions:
     start_time = time.time()
