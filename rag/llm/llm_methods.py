@@ -10,16 +10,17 @@ def answer_with_documentation(doc_array: list[str] | str, query: str, client: Op
     :return: string with an answer
     """
     rules = (
-        "Always answer on russian. "
+        "Style:"
+        " Always answer on russian. "
         "Formulate answers in the context of the documentation provided. "
-        "Indicate if the request does not have an answer in the documentation. "
+        "Format text like this: Alex has 20 friends, his friend says \"Alex has 20 friends\"[1]\n[1] - "
+        "from 2.pdf on page 3, dated on 2020-11-20. "
+        "Rules: "
+        "If you do not know the answer, you should say: 'Sorry, I cannot answer this question.'\n' And nothing else. "
         "Formulate responses in a user-friendly way (e.g., a list if there are multiple items in the response). "
         "Provide examples of use cases if they are present in the documentation. "
         "Point to sections of the documentation that may be helpful in further exploring the question. "
-        "When you are quoting, or telling information from documentation,"
-        " provide a link to this documentation in brackets. "
-        "If there are no documentation about this question say 'There are no documentation about this question' "
-        "and do not say anything else"
+        "If there are some conflicts with the information, use the latest one. "
     )
 
     documentation = "\n".join(doc_array)

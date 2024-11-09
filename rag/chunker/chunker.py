@@ -61,7 +61,8 @@ class Chunker:
         response = self.retrieval_engine.retrieve(query)
 
         def make_item(item):
-            s = f"Из файла с названием {item.metadata['file_name']} со страницы {item.metadata['page_label']}"
+            s = (f"Из файла с названием {item.metadata['file_name']} со страницы {item.metadata['page_label']}, "
+                 f"созданный {item.metadata['creation_date']}")
             s += f"\nИнформация: {item.text}"
             return s
 
