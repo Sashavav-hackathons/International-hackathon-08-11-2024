@@ -14,7 +14,7 @@ class Rag:
     """
 
     def __init__(self):
-        self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+        self.client = OpenAI(base_url="http://192.168.56.1:1234/v1", api_key="lm-studio")
         project_root = root_path(ignore_cwd=False)
         self.project_root = project_root
         self.k = 5
@@ -43,12 +43,12 @@ class Rag:
         self.chunker.create_chunk_db()
 
 
-rag = Rag()
-questions = (["В какие в года правил Генрих 13?",
-              "Как за 10 лет изменилось количество телепрограмм, привлекающих более 4-х млн. зрителей в Великобритании",
-              "Сколько заработал амазон на рекламе в 2023 году"])
+# rag = Rag()
+# questions = (["Как ai повышает креативность?",
+#               "А продуктивность??",
+#               "Сколько заработал амазон на рекламе в 2023 году"])
 
-for question in questions:
-    start_time = time.time()
-    print(rag.query(question))
-    print(str(time.time() - start_time) + " seconds")
+# for question in questions:
+#     start_time = time.time()
+#     print(rag.query(question))
+#     print(str(time.time() - start_time) + " seconds")

@@ -34,7 +34,7 @@ async function sendMessage() {
 
   async function getAIResponse(userMessage) {
   try {
-    const response = await fetch("http://localhost:5000/api/get_response", {
+    const response = await fetch("http://localhost:5000/api/query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
