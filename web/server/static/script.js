@@ -1,5 +1,7 @@
 const userInput = document.getElementById('user-input');
 
+redirectUser();
+
 // Увеличиваем высоту на Shift+Enter
 userInput?.addEventListener("keydown", function(event) {
   if (event.key === 'Enter' && !event.shiftKey) {
@@ -60,21 +62,53 @@ function displaySessionId() {
   }
   // session.textContent = `Сессия: ${sessionId}`;
 }
+
 //все очень плохо
 async function redirectUser() {
   const sessionId = getSessionId();
   try {
-    const response = await fetch("http://localhost:5000/api/query", {
-      method: "GET",
-      body: sessionId
+    const responseHTML = await fetch("http://localhost:8000/с/sessionId", {
+      method: "GET"
     });
+    window.location.replace(responseHTML);
+    // const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
+    //   method: "GET"
+    // });
+    // parser(responseSTR)
 
-    const data = await response.json();
-    return data.response;
   } catch (error) {
     console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
     return "Извините, произошла ошибка. Попробуйте еще раз.";
   }
+}
+
+// async function parse_history(){
+//   const sessionId = getSessionId();
+
+//   try {
+//     const responseHTML = await fetch("http://localhost:8000/с/sessionId", {
+//       method: "GET"
+//     });
+//     window.location.replace(responseHTML);
+//     const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
+//       method: "GET"
+//     });
+//     parser(responseSTR)
+
+//   } catch (error) {
+//     console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
+//     return "Извините, произошла ошибка. Попробуйте еще раз.";
+//   }
+// }
+
+function parser(inputString) {
+  let to_parse = inputString.split('\n\n\n\n\n');
+  let flag = 'bot-message'
+  to_parse.forEach(element => {
+    appendMessage(element, flag);
+    if (flag === 'bot-message') flag = 'user-message';
+    else flag = 'bot-message';
+  });
 
 }
 
