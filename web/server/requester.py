@@ -25,6 +25,7 @@ class QueryRequest(BaseModel):
     message: str
     id: str
 
+# Создание сессии
 @request_router.get("/create_session")
 def create_session(response: Response):
     session_id = str(uuid4())
@@ -34,6 +35,7 @@ def create_session(response: Response):
     
     return RedirectResponse(url=f"/c/{session_id}")
 
+# Стандартная страница
 @request_router.get("/c/", response_class=HTMLResponse)
 async def print_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -67,10 +69,13 @@ async def query(data: QueryRequest):
     session_data = redis_client.get_pair(user_id)
     if not session_data:
         redis_client.set_pair(user_id, "")
-    
-    redis_client.set_pair(user_id, redis_client.get_pair(user_id) + '/n/n/n/n/n' + user_message)
+
     ai_response = model.query(user_message)
+    
+    # Сохранение данных в Redis
+    redis_client.set_pair(user_id, redis_client.get_pair(user_id) + '/n/n/n/n/n' + user_message)
     redis_client.set_pair(user_id, redis_client.get_pair(user_id) + '/n/n/n/n/n' + ai_response)
+
     return {"response": ai_response}
 
 # @request_router.post("/api/load_file")
