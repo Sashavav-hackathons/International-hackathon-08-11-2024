@@ -1,24 +1,41 @@
-from flask import request, jsonify
-from flask import Blueprint, render_template
+from fastapi import APIRouter, Request, UploadFile, File
+from pydantic import BaseModel
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from starlette.requests import Request
+
 import sys
 import os
+
+# Настройка путей для импорта rag
 rag_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../rag'))
 sys.path.append(rag_path)
 
-from rag import Rag
+from rag import Rag  
 
-request_blueprint = Blueprint('main', __name__)
+# Инициализация модели и роутера
+model = Rag()
+request_router = APIRouter()
 
-@request_blueprint.route('/c', methods=['GET'])
-def print_index():
-    return render_template('index.html')
+# Указание папки с шаблонами
+templates = Jinja2Templates(directory="web/server/templates")
 
-@request_blueprint.route('/api/query', methods=['POST'])
-def query():
-    user_message = request.json.get("message")
-    ai_response = Rag.query(user_message)
-    return jsonify({"response": ai_response})
+# Модель данных для запроса
+class QueryRequest(BaseModel):
+    message: str
 
-@request_blueprint.route('/api/load_file', methods=['POST'])
-def load_file():
-    return 'hey!!'
+@request_router.get("/c", response_class=HTMLResponse)
+async def print_index(request: Request):
+    print("Current working directory:", os.getcwd())
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@request_router.post("/api/query")
+async def query(data: QueryRequest):
+    user_message = data.message
+    ai_response = model.query(user_message)
+    return {"response": ai_response}
+
+# @request_router.post("/api/load_file")
+# async def load_file(file: UploadFile = File(...)):
+#     file_content = await file.read()  # обработка файла
+#     return {"message": "File received", "filename": file.filename}

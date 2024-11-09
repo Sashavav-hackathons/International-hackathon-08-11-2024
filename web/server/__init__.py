@@ -1,23 +1,29 @@
-from flask import Flask
-from flask_cors import CORS # Импортируем CORS
-from requester import request_blueprint
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from requester import request_router
+from fastapi.staticfiles import StaticFiles
 
+app = FastAPI()
 
-def load_file_setup():
-    UPLOAD_FOLDER = '../../TEST_DATA'
-    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Настройка CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # разрешить все источники; можно настроить для безопасности
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-def create_app():
-    app = Flask(__name__)
-    app.register_blueprint(request_blueprint)
-    
-    CORS(app)
+# Настройка загрузки файлов
+UPLOAD_FOLDER = '../../TEST_DATA'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
-    return app
+# Роутер запросов
+app.include_router(request_router)
 
-app = create_app()
-load_file_setup()
+app.mount("/static", StaticFiles(directory="web/server/static"), name='static')
 
+# Запуск приложения через Uvicorn
 if __name__ == '__main__':
-    app.run(port=5000)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5000)
