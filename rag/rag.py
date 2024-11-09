@@ -6,7 +6,6 @@ from openai import OpenAI
 from llm.llm_methods import answer_with_documentation, predict_answer
 from chunker.chunker import Chunker
 from get_project_root import root_path
-from build.local_variables import YANDEX_GPT_TOKEN
 
 
 class Rag:
