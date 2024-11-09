@@ -2,7 +2,7 @@ import requests
 from openai import OpenAI
 
 
-def answer_with_documentation(doc_array: list[str] | str, query: str, **kwargs) -> str:
+def answer_with_documentation(doc_array: list[str] | str, query: str, history: str="", **kwargs) -> str:
     """
     Helper function for answering on the question by the documentation that is provided.
     :param doc_array: documentation strings, that the result will be based on
@@ -37,11 +37,12 @@ def answer_with_documentation(doc_array: list[str] | str, query: str, **kwargs) 
     )
 
     documentation = "\n".join(doc_array)
+    rules += f"Если запрос не является самостоятельным, то используй историю переписки: {history} " if history else ""
     query = f"Документация:{documentation} Запрос: {query}"
     return choose_and_run_model(query=query, rules=rules, **kwargs)
 
 
-def predict_answer(query: str, **kwargs) -> str:
+def predict_answer(query: str, history: str="", **kwargs) -> str:
     """
     Function that predicts the answer even to make a better search
     :param query: string with a query
@@ -55,7 +56,22 @@ def predict_answer(query: str, **kwargs) -> str:
         "Do not tell me that you don't know the correct answer, cause you don't. "
         "Say only the predicted answer and nothing else. "
     )
+    rules += (f"Если ты затрудняешься сгенерировать примерный ответ, то постарайся использовать историю переписки: "
+              f"{history} ") if history else ""
     return choose_and_run_model(query=query, rules=rules, **kwargs)
+
+
+def is_need_history(query: str, history: str, **kwargs) -> bool:
+    rules = (
+        "У тебя всего одна задача: \n"
+        "Напиши TRUE, если вопрос относится к сказанному ранее. \n"
+        "Напиши FALSE, если вопрос не относится к сказанному ранее. \n"
+        "Итого твой ответ - одно слово: TRUE/FALSE"
+    )
+    query = f"Сказанное ранее: {history}. \n---------------\nТекущий вопрос {query}"
+    ans = choose_and_run_model(query=query, rules=rules, **kwargs)
+    # print(ans)
+    return ans.find("TRUE") > -1
 
 
 def choose_and_run_model(query: str, rules: str, **kwargs) -> str:
