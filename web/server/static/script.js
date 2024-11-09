@@ -67,10 +67,11 @@ function displaySessionId() {
 async function redirectUser() {
   const sessionId = getSessionId();
   try {
-    const responseHTML = await fetch("http://localhost:8000/с/sessionId", {
-      method: "GET"
+    const responseHTML = await fetch("http://localhost:8000/", {
+      method: "GET",
+      body: sessionId
     });
-    window.location.replace(responseHTML);
+    // window.location.replace(responseHTML);
     // const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
     //   method: "GET"
     // });

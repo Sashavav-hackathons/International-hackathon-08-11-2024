@@ -26,13 +26,10 @@ class QueryRequest(BaseModel):
     message: str
     id: str
 
-class IdRequest(BaseModel):
-    id: str
-
 # Создание сессии
 @request_router.get("/")
-def create_session(id: IdRequest):
-    session_id = id.id
+def create_session(responce: Response):
+    session_id = responce.body
     return RedirectResponse(url=f"/c/{session_id}")
 
 # Стандартная страница
