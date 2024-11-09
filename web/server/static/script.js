@@ -33,6 +33,8 @@ userInput?.addEventListener("keypress", function(event) {
 function sendMessage() {
     const inputElement = document.getElementById("user-input");
     const messageText = inputElement.value.trim();
+    const sessionId = getSessionId();
+
     if (messageText === "") return;
 
     appendMessage(messageText, 'user-message');
@@ -40,20 +42,59 @@ function sendMessage() {
     resetTextareaHeight(); // Сбрасываем высоту после отправки
 
     // Симулируем ответ от бота
-    getAIResponse(messageText).then(response => {
+    getAIResponse(messageText, sessionId).then(response => {
         appendMessage(response, 'bot-message');
     });
 }
 
-async function getAIResponse(userMessage) {
+// Генерируем и сохраняем номер сессии
+function generateSessionId() {
+  const sessionId = crypto.randomUUID(); // Уникальный идентификатор
+  localStorage.setItem('sessionId', sessionId);
+  console.log(sessionId)
+  return sessionId;
+}
+
+// Получаем номер сессии, если он уже есть, или создаём новый
+function getSessionId() {
+  let sessionId = localStorage.getItem('sessionId');
+  // console.log(sessionId);
+  if (!sessionId) {
+      sessionId = generateSessionId();
+  }
+  return sessionId;
+}
+
+// Отображаем номер сессии на странице
+function displaySessionId() {
+  const sessionId = getSessionId();
+  const session = document.getElementById("session-id")
+  if (session){
+    session.textContent = `Сессия: ${sessionId}`;
+  }
+  // session.textContent = `Сессия: ${sessionId}`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  displaySessionId(); // Отображаем номер сессии при загрузке страницы  
+});
+
+async function getAIResponse(userMessage, sessionID) {
   try {
     const response = await fetch("http://localhost:5000/api/query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ message: userMessage })
+      body: JSON.stringify({ 
+        message: userMessage,
+        id: sessionID
+      })
     });
+    console.log(JSON.stringify({ 
+      message: userMessage,
+      id: sessionID
+    }))
     const data = await response.json();
     return data.response;
   } catch (error) {

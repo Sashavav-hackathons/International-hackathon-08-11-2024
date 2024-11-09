@@ -9,11 +9,12 @@
 </head>
 <body>
     <div class="chat-container">
+        <div class="session-id" id="session-id">Сессия: —</div> <!-- Новый блок для номера сессии -->
         <div class="chat-box" id="chat-box">
             <div class="message bot-message">Чем я могу помочь?</div>
         </div>
         <div class="input-container">
-            <input type="text" id="user-input" placeholder="Сообщить ChatGPT" autofocus>
+            <input type="text" id="user-input" placeholder="Задайте вопрос _CamelcaseGPT" autofocus>
             <button id="send-btn" onclick = "sendMessage()">➤</button>
         </div>
     </div>

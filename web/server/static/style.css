@@ -79,3 +79,13 @@ button {
 button:hover {
     background-color: #666;
 }
+
+/* Новый стиль для номера сессии */
+.session-id {
+    text-align: center;
+    padding: 10px;
+    background-color: #444;
+    color: #ccc;
+    font-size: 14px;
+    font-weight: bold;
+}
