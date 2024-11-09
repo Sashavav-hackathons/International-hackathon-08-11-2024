@@ -6,6 +6,7 @@ from openai import OpenAI
 from llm.llm_methods import answer_with_documentation, predict_answer
 from chunker.chunker import Chunker
 from get_project_root import root_path
+from build.local_variables import YANDEX_GPT_TOKEN
 
 
 class Rag:
@@ -14,7 +15,10 @@ class Rag:
     """
 
     def __init__(self):
-        self.client = OpenAI(base_url="http://192.168.56.1:1234/v1", api_key="lm-studio")
+        # self.client = OpenAI(base_url="http://192.168.1.70:1234/v1", api_key="lm-studio")
+        # TODO TOKEN UPDATE
+        # self.token = YANDEX_GPT_TOKEN
+        self.token = "t1.9euelZrKyJzKk5CMnpqYm8mdkozPlO3rnpWanJLMlMeXnZGcmc7KypSVis_l9PcHJEJG-e8XEias3fT3R1I_RvnvFxImrM3n9euelZqcjJual8nHjo7MioqJjJ6Kju_8xeuelZqcjJual8nHjo7MioqJjJ6Kjg.pKjVRowuKOzHLq7YCT9Z0BAx_eukO7jpn3uHO7PNpRFZ95bktNUXCWcu9uzEVaaCNAeWmVgUaFkg6JSDour1Dg"
         project_root = root_path(ignore_cwd=False)
         self.project_root = project_root
         self.k = 5
@@ -26,13 +30,13 @@ class Rag:
         :param q: query, that you want to search
         :return: answer to the query
         """
-        q_gen = predict_answer(q, self.client)
+        q_gen = predict_answer(q, yandex_gpt=self.token)
         q_docs = self.search_in_documents(q)
         q_docs = q_docs if isinstance(q_docs, list) else [q_docs]
         q_gen_docs = self.search_in_documents(q_gen)
         q_gen_docs = q_gen_docs if isinstance(q_gen_docs, list) else [q_gen_docs]
         q_docs.extend(q_gen_docs)
-        answer = answer_with_documentation(q_docs, q, self.client)
+        answer = answer_with_documentation(q_docs, q, yandex_gpt=self.token)
         return answer
 
     def search_in_documents(self, q: str) -> list[str]:
