@@ -4,3 +4,5 @@ __pycache__/
 .vscode/
 /rag/data/chroma_db/chroma.sqlite3
 /build/private_consts.py
+
+/rag/rag/data/chroma_db

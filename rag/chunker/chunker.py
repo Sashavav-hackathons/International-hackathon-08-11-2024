@@ -19,7 +19,7 @@ class Chunker:
     def __init__(self, path: str):
         self.retrieval_engine = None
         self.path = path
-        self.data_path = path + "\\rag\\data\\"
+        self.data_path = path + "rag/data/"
         self.prepared_data_path = self.data_path + "prepared"
         self.chroma_db_path = self.data_path + "chroma_db"
         self.chroma_collection_name = "default"
