@@ -4,5 +4,9 @@ __pycache__/
 .vscode/
 /rag/data/chroma_db/chroma.sqlite3
 /build/private_consts.py
+<<<<<<< HEAD
 
 /rag/rag/data/chroma_db
+=======
+/rag/data/prepared/
+>>>>>>> develop
