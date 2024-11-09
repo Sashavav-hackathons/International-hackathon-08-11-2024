@@ -18,7 +18,7 @@ request_router = APIRouter()
 redis_client = RedisDB()
 
 # Указание папки с шаблонами
-templates = Jinja2Templates(directory="web/server/templates")
+templates = Jinja2Templates(directory="web\\server\\templates")
 
 # Модель данных для запроса
 class QueryRequest(BaseModel):
@@ -38,19 +38,27 @@ async def print_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @request_router.get("/c/{session_id}")
-def session_page(session_id: str):
+async def session_page(session_id: str, request: Request):
     # Извлечение данных сессии из Redis
     session_data = redis_client.get_pair(session_id)
     if not session_data:
         raise HTTPException(status_code=404, detail="Session not found")
     # Логика обработки данных сессии и возврат нужной страницы
-    return {"message": f"Welcome to session {session_id}", "session_data": session_data}
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@request_router.get("/history/{session_id}")
+async def session_page(session_id: str, request: Request):
+    # Извлечение данных сессии из Redis
+    session_data = redis_client.get_pair(session_id)
+    
+    # Логика обработки данных сессии и возврат нужной страницы
+    return session_data
 
 # Получение запроса от пользователя
 @request_router.post("/api/query")
 async def query(data: QueryRequest):
     user_message = data.message
-    # Получение ответа от генеративной модели
     ai_response = model.query(user_message)
     return {"response": ai_response}
 
