@@ -58,3 +58,30 @@ class Rag:
 
     def add_file(self, path: str):
         self.chunker.add_file(path)
+
+    @staticmethod
+    def static_query(q: str, token: str, chunker: Chunker = Chunker(),
+                     k: int = 2, history: str = "") -> dict[str, str | Chunker]:
+        new_q = is_need_history(q, history=history, yandex_gpt=token)
+        if new_q.find("no data") == -1:
+            q = new_q
+        else:
+            history = ""
+        q_gen = predict_answer(q, yandex_gpt=token)
+        q_docs = chunker.find_best_in_db(query=q, k=k)
+        q_docs = q_docs if isinstance(q_docs, list) else [q_docs]
+        q_gen_docs = chunker.find_best_in_db(query=q_gen, k=k)
+        q_gen_docs = q_gen_docs if isinstance(q_gen_docs, list) else [q_gen_docs]
+        q_docs.extend(q_gen_docs)
+        answer = answer_with_documentation(q_docs, q, yandex_gpt=token)
+        history += f"Вопрос: {q}| Ответ: {answer}\n"
+        res = dict()
+        res["answer"] = answer if answer.find("К сожалению, я") == -1 else ("К сожалению, я не владею данной "
+                                                                            "информацией.")
+        res["history"] = history
+        return res
+
+    @staticmethod
+    def push_new_files_to_db(project_root: str = root_path(ignore_cwd=False)):
+        chunker = Chunker(project_root)
+        chunker.add_file("")

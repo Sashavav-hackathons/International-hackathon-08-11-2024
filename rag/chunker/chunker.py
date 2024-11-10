@@ -1,4 +1,5 @@
 import chromadb
+from get_project_root import root_path
 from llama_index.core import Settings
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core import StorageContext
@@ -10,7 +11,7 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 
 
 class Chunker:
-    def __init__(self, path: str):
+    def __init__(self, path: str = root_path(ignore_cwd=False)):
         self.db = None
         self.vector_store = None
         self.chroma_collection = None
