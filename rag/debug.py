@@ -5,7 +5,7 @@ from rag import Rag
 rag = Rag()
 # rag.create_db()
 path = "D:\\Backup\\Less Important\\My programs\\Git\\International-hackathon-08-11-2024\\rag\\data\\new_files"
-rag.add_file(path)
+# rag.add_file(path)
 questions = (["В какие в года правил Генрих 13?",
               "Как за 5 лет изменилось количество телепрограмм, привлекающих более 4-х млн. зрителей в Великобритании",
               "А за десять?",

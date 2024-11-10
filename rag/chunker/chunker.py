@@ -51,12 +51,15 @@ class Chunker:
             buffer_size=2,
             embed_model=semantic_embed_model
         )
-        self.init_db(2)
         documents = SimpleDirectoryReader(self.new_data_path).load_data()
         nodes = semantic_splitter.get_nodes_from_documents(documents)
+        db = chromadb.PersistentClient(path=self.chroma_db_path)
+        chroma_collection = db.get_or_create_collection(self.chroma_collection_name)
+        vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+        storage_context = StorageContext.from_defaults(vector_store=vector_store)
         VectorStoreIndex(
             nodes=nodes,
-            storage_context=self.storage_context,
+            storage_context=storage_context,
             show_progress=True
         )
 
