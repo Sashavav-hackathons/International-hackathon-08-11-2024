@@ -1,21 +1,38 @@
-const userInput = document.getElementById('user-input');
+let typingInterval;
+const typingIndicator = document.createElement('div');
+typingIndicator.className = 'message bot-message typing-indicator';
+typingIndicator.textContent = 'Печатает';
 
-// Увеличиваем высоту на Shift+Enter
-userInput?.addEventListener("keydown", function(event) {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault();
-    sendMessage();
-}
-}, false);
+function showTypingIndicator(isTyping) {
+    const chatBox = document.getElementById('chat-box');
 
-// Увеличиваем высоту на Shift+Enter
-userInput?.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter' && event.shiftKey) {
-        adjustTextareaHeight();
+    if (isTyping) {
+        if (!chatBox.contains(typingIndicator)) {
+            chatBox.appendChild(typingIndicator);
+            scrollChatToBottom();
+        }
+
+        let dots = 0;
+        typingInterval = setInterval(() => {
+            dots = (dots + 1) % 4;
+            typingIndicator.textContent = 'Печатает' + '.'.repeat(dots);
+        }, 500);
+    } else {
+        // Останавливаем анимацию и удаляем индикатор из чата
+        clearInterval(typingInterval);
+        if (chatBox.contains(typingIndicator)) {
+            chatBox.removeChild(typingIndicator);
+        }
     }
-}, false);
+}
 
-// 
+// Функция для прокрутки к последнему сообщению
+function scrollChatToBottom() {
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Функция для обработки сообщения пользователя
 function sendMessage() {
     const inputElement = document.getElementById("user-input");
     const messageText = inputElement.value.trim();
@@ -27,8 +44,10 @@ function sendMessage() {
     inputElement.value = '';
     resetTextareaHeight(); // Сбрасываем высоту после отправки
 
-    // Симулируем ответ от бота
+    showTypingIndicator(true);
+
     getAIResponse(messageText, sessionId).then(response => {
+        showTypingIndicator(false);
         appendMessage(response, 'bot-message');
     });
 }
@@ -37,14 +56,12 @@ function sendMessage() {
 function generateSessionId() {
   const sessionId = crypto.randomUUID(); // Уникальный идентификатор
   localStorage.setItem('sessionId', sessionId);
-  console.log(sessionId)
   return sessionId;
 }
 
 // Получаем номер сессии, если он уже есть, или создаём новый
 function getSessionId() {
   let sessionId = localStorage.getItem('sessionId');
-  // console.log(sessionId);
   if (!sessionId) {
       sessionId = generateSessionId();
   }
@@ -58,52 +75,22 @@ function displaySessionId() {
   if (session){
     session.textContent = `Сессия: ${sessionId}`;
   }
-  // session.textContent = `Сессия: ${sessionId}`;
 }
 
-//все очень плохо
+// Перенаправляем юзера на страницу, где подгружаем его историю
 async function redirectUser() {
   const sessionId = getSessionId();
-  url = new URL("http://localhost:8000/wayback")
-  url.searchParams.append("session_id", sessionId);
-  console.log("Я тут")
   try {
-    const response = await fetch(url, {
+    const responseHTML = await fetch("http://localhost:8000/", {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      }
+      body: sessionId
     });
-    // window.location.replace(responseHTML);
-    // const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
-    //   method: "GET"
-    // });
-    // parser(responseSTR)
 
   } catch (error) {
     console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
     return "Извините, произошла ошибка. Попробуйте еще раз.";
   }
 }
-
-// async function parse_history(){
-//   const sessionId = getSessionId();
-
-//   try {
-//     const responseHTML = await fetch("http://localhost:8000/с/sessionId", {
-//       method: "GET"
-//     });
-//     window.location.replace(responseHTML);
-//     const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
-//       method: "GET"
-//     });
-//     parser(responseSTR)
-
-//   } catch (error) {
-//     console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
-//     return "Извините, произошла ошибка. Попробуйте еще раз.";
-//   }
-// }
 
 function parser(inputString) {
   let to_parse = inputString.split('\n\n\n\n\n');
@@ -113,30 +100,38 @@ function parser(inputString) {
     if (flag === 'bot-message') flag = 'user-message';
     else flag = 'bot-message';
   });
-
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   displaySessionId(); // Отображаем номер сессии при загрузке страницы
-  userInput?.addEventListener("input", adjustTextareaHeight());
-  // Обработка нажатия клавиш в поле ввода
-  userInput?.addEventListener('keydown', function(e) {
-    console.log("hui");
-    if (e.key === 'Enter') {
-        if (e.shiftKey) {
-            // Если нажаты Shift + Enter, добавляем перенос строки и увеличиваем высоту поля
-            e.preventDefault();
-            userInput.value += '\n';
-            adjustTextareaHeight();
-        } else {
-            // Если только Enter, отправляем сообщение
-            e.preventDefault();
-            sendMessage();
-        }
+  const userInput = document.getElementById('user-input');
+
+  userInput?.addEventListener("input", adjustTextareaHeight); // автоформатирование строки пользователя
+
+  userInput.addEventListener('keydown', function(e) {
+    // Проверка нажатия клавиш для Enter и Shift + Enter
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+
+    } else if (e.key === "Enter") {
+      e.preventDefault(); // предотвращаем стандартное поведение Enter
+      insertNewLine();
     }
-  });
+  
+  function insertNewLine() {
+    // Добавляем перенос строки в текущее положение курсора
+    const cursorPosition = userInput.selectionStart;
+    const text = userInput.value;
+    userInput.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
+    userInput.selectionStart = userInput.selectionEnd = cursorPosition + 1;
+    adjustTextareaHeight(); // Увеличиваем высоту текстового поля
+  }
+
+});
 });
 
+// Функция для получения ответа от ИИ
 async function getAIResponse(userMessage, sessionID) {
 
   try {
@@ -158,11 +153,18 @@ async function getAIResponse(userMessage, sessionID) {
   }
 }
 
+// функция для добавления сообщения в чат
 function appendMessage(text, className) {
     const chatBox = document.getElementById('chat-box');
     const message = document.createElement('div');
     message.className = 'message ' + className;
-    message.textContent = text;
+
+    if (className == "bot-message")
+      message.innerHTML = marked.parse(text);
+    else
+      message.textContent = text;
+
+    // message.textContent = text;
     chatBox.appendChild(message);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -191,4 +193,4 @@ function redirectToSession() {
 
 window.onload = redirectToSession;
 
-console.log(window.location.href)
+// console.log(window.location.href)

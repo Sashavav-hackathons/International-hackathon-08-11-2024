@@ -92,5 +92,6 @@ async def query(data: QueryRequest):
 # Загрузка файла
 @request_router.post("/api/load_file")
 async def load_file(file: UploadFile = File(...)):
-    file_content = await file.read()  # обработка файла
+    file_content = await file.read()
+    
     return {"message": "File received", "filename": file.filename}
