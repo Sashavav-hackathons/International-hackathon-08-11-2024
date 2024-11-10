@@ -3,9 +3,10 @@ import time
 
 from openai import OpenAI
 
-from rag.llm.llm_methods import answer_with_documentation, predict_answer
+from rag.llm.llm_methods import answer_with_documentation, predict_answer, is_need_history
 from rag.chunker.chunker import Chunker
 from get_project_root import root_path
+from build.local_variables import YANDEX_GPT_TOKEN
 
 
 class Rag:
@@ -55,18 +56,32 @@ class Rag:
     def create_db(self):
         self.chunker.create_chunk_db()
 
+    def add_file(self, path: str):
+        self.chunker.add_file(path)
 
-rag = Rag()
-questions = (["В какие в года правил Генрих 13?",
-              "Как за 10 лет изменилось количество телепрограмм, привлекающих более 4-х млн. зрителей в Великобритании",
-              "Сколько заработал амазон на рекламе в 2023 году",
-              "Какая часть поколения Z считает, что стилизация их аватара в интернете важнее чем их стиль"
-              " в реальной жизни? Какая динамика?",
-              "Что говорит о человеке его аватар?",
-              "Какой процент людей в возрасте от 18 до 64 лет считает, что лучше всего связываются с брендом,"
-              " у которого есть уникальная аудио-идентичность?"])
+    @staticmethod
+    def static_query(q: str, token: str, chunker: Chunker = Chunker(),
+                     k: int = 2, history: str = "") -> dict[str, str | Chunker]:
+        new_q = is_need_history(q, history=history, yandex_gpt=token)
+        if new_q.find("no data") == -1:
+            q = new_q
+        else:
+            history = ""
+        q_gen = predict_answer(q, yandex_gpt=token)
+        q_docs = chunker.find_best_in_db(query=q, k=k)
+        q_docs = q_docs if isinstance(q_docs, list) else [q_docs]
+        q_gen_docs = chunker.find_best_in_db(query=q_gen, k=k)
+        q_gen_docs = q_gen_docs if isinstance(q_gen_docs, list) else [q_gen_docs]
+        q_docs.extend(q_gen_docs)
+        answer = answer_with_documentation(q_docs, q, yandex_gpt=token)
+        history += f"Вопрос: {q}| Ответ: {answer}\n"
+        res = dict()
+        res["answer"] = answer if answer.find("К сожалению, я") == -1 else ("К сожалению, я не владею данной "
+                                                                            "информацией.")
+        res["history"] = history
+        return res
 
-for question in questions:
-    start_time = time.time()
-    print(rag.query(question))
-    print(str(time.time() - start_time) + " seconds")
+    @staticmethod
+    def push_new_files_to_db(project_root: str = root_path(ignore_cwd=False)):
+        chunker = Chunker(project_root)
+        chunker.add_file("")
