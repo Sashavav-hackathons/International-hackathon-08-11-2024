@@ -14,6 +14,3 @@ def get_yandex_gpt_token():
     response = requests.post(url, json=data)
     token = response.json()['iamToken']
     return token
-
-
-
