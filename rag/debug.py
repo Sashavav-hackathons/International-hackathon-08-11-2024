@@ -1,6 +1,6 @@
 import time
 from rag import Rag
-from rag.chunker.chunker import Chunker
+from chunker.chunker import Chunker
 # from build.update_yandex_gpt_token import get_yandex_gpt_token
 
 questions = (["В какие в года правил Генрих 13?",
@@ -14,6 +14,7 @@ token = "t1.9euelZqSiYuSx42LlpmJjp6bx5CSnO3rnpWanJLMlMeXnZGcmc7KypSVis_l8_cVQz9G
 # token = get_yandex_gpt_token()
 history = ""
 chunker = Chunker()
+Rag.push_new_files_to_db(chunker)
 for question in questions:
     start_time = time.time()
     res = Rag.static_query(question, token, chunker=chunker, history=history)
