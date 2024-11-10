@@ -1,14 +1,5 @@
 
-// function insertNewLine() {
-//   // Добавляем перенос строки в текущее положение курсора
-//   const cursorPosition = userInput.selectionStart;
-//   const text = userInput.value;
-//   userInput.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
-//   userInput.selectionStart = userInput.selectionEnd = cursorPosition + 1;
-//   adjustTextareaHeight(); // Увеличиваем высоту текстового поля
-// }
-
-//
+// Функция для обработки сообщения пользователя
 function sendMessage() {
     const inputElement = document.getElementById("user-input");
     const messageText = inputElement.value.trim();
@@ -51,7 +42,6 @@ function displaySessionId() {
   if (session){
     session.textContent = `Сессия: ${sessionId}`;
   }
-  // session.textContent = `Сессия: ${sessionId}`;
 }
 
 function parser(inputString) {
@@ -62,13 +52,13 @@ function parser(inputString) {
     if (flag === 'bot-message') flag = 'user-message';
     else flag = 'bot-message';
   });
-
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   displaySessionId(); // Отображаем номер сессии при загрузке страницы
   const userInput = document.getElementById('user-input');
-  userInput?.addEventListener("input", adjustTextareaHeight);
+
+  userInput?.addEventListener("input", adjustTextareaHeight); // автоформатирование строки пользователя
 
   userInput.addEventListener('keydown', function(e) {
     // Проверка нажатия клавиш для Enter и Shift + Enter
@@ -93,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 });
 
+// Функция для получения ответа от ИИ
 async function getAIResponse(userMessage, sessionID) {
   try {
     const response = await fetch("http://localhost:8000/api/query", {
@@ -113,6 +104,7 @@ async function getAIResponse(userMessage, sessionID) {
   }
 }
 
+// функция для добавления сообщения в чат
 function appendMessage(text, className) {
     const chatBox = document.getElementById('chat-box');
     const message = document.createElement('div');
