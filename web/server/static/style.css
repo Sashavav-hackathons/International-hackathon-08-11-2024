@@ -89,7 +89,6 @@ button:hover {
     background-color: #666;
 }
 
-/* Новый стиль для номера сессии */
 .session-id {
     text-align: center;
     padding: 10px;
@@ -101,5 +100,5 @@ button:hover {
 
 .typing-indicator {
     font-style: italic;
-    color: #555; /* Серый цвет для имитации "печатает" */
+    color: #555;
 }

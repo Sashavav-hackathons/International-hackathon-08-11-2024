@@ -44,8 +44,10 @@ function sendMessage() {
     inputElement.value = '';
     resetTextareaHeight(); // Сбрасываем высоту после отправки
 
-    // Симулируем ответ от бота
+    showTypingIndicator(true);
+
     getAIResponse(messageText, sessionId).then(response => {
+        showTypingIndicator(false);
         appendMessage(response, 'bot-message');
     });
 }
@@ -73,10 +75,9 @@ function displaySessionId() {
   if (session){
     session.textContent = `Сессия: ${sessionId}`;
   }
-  // session.textContent = `Сессия: ${sessionId}`;
 }
 
-//все очень плохо
+// Перенаправляем юзера на страницу, где подгружаем его историю
 async function redirectUser() {
   const sessionId = getSessionId();
   try {
@@ -84,36 +85,12 @@ async function redirectUser() {
       method: "GET",
       body: sessionId
     });
-    // window.location.replace(responseHTML);
-    // const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
-    //   method: "GET"
-    // });
-    // parser(responseSTR)
 
   } catch (error) {
     console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
     return "Извините, произошла ошибка. Попробуйте еще раз.";
   }
 }
-
-// async function parse_history(){
-//   const sessionId = getSessionId();
-
-//   try {
-//     const responseHTML = await fetch("http://localhost:8000/с/sessionId", {
-//       method: "GET"
-//     });
-//     window.location.replace(responseHTML);
-//     const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
-//       method: "GET"
-//     });
-//     parser(responseSTR)
-
-//   } catch (error) {
-//     console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
-//     return "Извините, произошла ошибка. Попробуйте еще раз.";
-//   }
-// }
 
 function parser(inputString) {
   let to_parse = inputString.split('\n\n\n\n\n');
@@ -181,7 +158,13 @@ function appendMessage(text, className) {
     const chatBox = document.getElementById('chat-box');
     const message = document.createElement('div');
     message.className = 'message ' + className;
-    message.textContent = text;
+
+    if (className == "bot-message")
+      message.innerHTML = marked.parse(text);
+    else
+      message.textContent = text;
+
+    // message.textContent = text;
     chatBox.appendChild(message);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -210,4 +193,4 @@ function redirectToSession() {
 
 window.onload = redirectToSession;
 
-console.log(window.location.href)
+// console.log(window.location.href)
