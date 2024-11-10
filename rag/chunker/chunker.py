@@ -28,6 +28,10 @@ class Chunker:
         self.index = None
 
     def init_db(self, k: int):
+        """
+        Метод подгрузки индексов БД для ускоренной работы
+        :param k: Искомое число чанков
+        """
         if self.index is None:
             Settings.embed_model = self.embed_model
             self.db = chromadb.PersistentClient(path=self.chroma_db_path)
@@ -38,17 +42,20 @@ class Chunker:
             self.index = VectorStoreIndex.from_vector_store(
                 self.vector_store, storage_context=self.storage_context, show_progress=True
             )
-            # query_engine = index.as_query_engine(llm="BAAI/bge-m3")
-            # response = query_engine.query("Кто такой генрих 13?")
             self.retrieval_engine = self.index.as_retriever(
                 similarity_top_k=k,
-                choice_batch_size=2,
+                choice_batch_size=k,
             )
 
-    def add_file(self, path: str):
+    def add_file(self, path: str = ""):
+        """
+        Метод добавления всех файлов директории new_files в БД
+        :param path: Путь до папки, если она будет отлична от стандартной
+        """
+        path = self.data_path if path == "" else path
         embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
         Settings.embed_model = embed_model
-        documents = SimpleDirectoryReader(self.new_data_path).load_data()
+        documents = SimpleDirectoryReader(path).load_data()
         db = chromadb.PersistentClient(path=self.chroma_db_path)
         chroma_collection = db.get_or_create_collection(self.chroma_collection_name)
         vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
@@ -60,6 +67,9 @@ class Chunker:
         )
 
     def create_chunk_db(self):
+        """
+        Метод создания базы данных из директории rag/data/prepared
+        """
         embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
         Settings.embed_model = embed_model
         semantic_embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
@@ -87,11 +97,17 @@ class Chunker:
         return index
 
     def find_best_in_db(self, query: str, k: int, min_score: int = 0.3) -> list[str]:
+        """
+        Метод поиска наилучших чанков в БД
+        :param query: Текстовый запрос, относительно которого ищется документация
+        :param k: Максимальное число найденных чанков
+        :param min_score: Минимальный рейтинг чанка для добавления в выборку
+        :return Список из найденной документации
+        """
         self.init_db(k)
         response = self.retrieval_engine.retrieve(query)
 
-        def make_item(item : NodeWithScore) -> str:
-            # print(item.score, end=" ")
+        def make_item(item: NodeWithScore) -> str:
             if item.score < min_score:
                 return ""
             if item.metadata.__contains__("page_label"):
