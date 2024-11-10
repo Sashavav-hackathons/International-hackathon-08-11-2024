@@ -73,7 +73,47 @@ function displaySessionId() {
   if (session){
     session.textContent = `Сессия: ${sessionId}`;
   }
+  // session.textContent = `Сессия: ${sessionId}`;
 }
+
+//все очень плохо
+async function redirectUser() {
+  const sessionId = getSessionId();
+  try {
+    const responseHTML = await fetch("http://localhost:8000/", {
+      method: "GET",
+      body: sessionId
+    });
+    // window.location.replace(responseHTML);
+    // const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
+    //   method: "GET"
+    // });
+    // parser(responseSTR)
+
+  } catch (error) {
+    console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
+    return "Извините, произошла ошибка. Попробуйте еще раз.";
+  }
+}
+
+// async function parse_history(){
+//   const sessionId = getSessionId();
+
+//   try {
+//     const responseHTML = await fetch("http://localhost:8000/с/sessionId", {
+//       method: "GET"
+//     });
+//     window.location.replace(responseHTML);
+//     const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
+//       method: "GET"
+//     });
+//     parser(responseSTR)
+
+//   } catch (error) {
+//     console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
+//     return "Извините, произошла ошибка. Попробуйте еще раз.";
+//   }
+// }
 
 function parser(inputString) {
   let to_parse = inputString.split('\n\n\n\n\n');
@@ -116,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Функция для получения ответа от ИИ
 async function getAIResponse(userMessage, sessionID) {
+
   try {
     const response = await fetch("http://localhost:8000/api/query", {
       method: "POST",
@@ -157,3 +198,16 @@ function resetTextareaHeight() {
   const inputElement = document.getElementById("user-input");
   inputElement.style.height = "auto";
 }
+
+function redirectToSession() {
+  if (window.location.pathname === '/') {
+    // Проверяем, есть ли уже сохранённый session_id в localStorage
+    const sessionId = getSessionId();
+    // Если session_id найден, перенаправляем на страницу с этим id
+    window.location.replace(`${window.location.origin}/c/${sessionId}`);
+  }
+}
+
+window.onload = redirectToSession;
+
+console.log(window.location.href)
