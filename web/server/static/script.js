@@ -1,3 +1,36 @@
+let typingInterval;
+const typingIndicator = document.createElement('div');
+typingIndicator.className = 'message bot-message typing-indicator';
+typingIndicator.textContent = 'Печатает';
+
+function showTypingIndicator(isTyping) {
+    const chatBox = document.getElementById('chat-box');
+
+    if (isTyping) {
+        if (!chatBox.contains(typingIndicator)) {
+            chatBox.appendChild(typingIndicator);
+            scrollChatToBottom();
+        }
+
+        let dots = 0;
+        typingInterval = setInterval(() => {
+            dots = (dots + 1) % 4;
+            typingIndicator.textContent = 'Печатает' + '.'.repeat(dots);
+        }, 500);
+    } else {
+        // Останавливаем анимацию и удаляем индикатор из чата
+        clearInterval(typingInterval);
+        if (chatBox.contains(typingIndicator)) {
+            chatBox.removeChild(typingIndicator);
+        }
+    }
+}
+
+// Функция для прокрутки к последнему сообщению
+function scrollChatToBottom() {
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
 
 // Функция для обработки сообщения пользователя
 function sendMessage() {
@@ -21,14 +54,12 @@ function sendMessage() {
 function generateSessionId() {
   const sessionId = crypto.randomUUID(); // Уникальный идентификатор
   localStorage.setItem('sessionId', sessionId);
-  console.log(sessionId)
   return sessionId;
 }
 
 // Получаем номер сессии, если он уже есть, или создаём новый
 function getSessionId() {
   let sessionId = localStorage.getItem('sessionId');
-  // console.log(sessionId);
   if (!sessionId) {
       sessionId = generateSessionId();
   }

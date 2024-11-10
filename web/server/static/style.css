@@ -98,3 +98,8 @@ button:hover {
     font-size: 14px;
     font-weight: bold;
 }
+
+.typing-indicator {
+    font-style: italic;
+    color: #555; /* Серый цвет для имитации "печатает" */
+}
