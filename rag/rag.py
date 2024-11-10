@@ -21,7 +21,7 @@ class Rag:
         self.token = "t1.9euelZrKyJzKk5CMnpqYm8mdkozPlO3rnpWanJLMlMeXnZGcmc7KypSVis_l9PcHJEJG-e8XEias3fT3R1I_RvnvFxImrM3n9euelZqcjJual8nHjo7MioqJjJ6Kju_8xeuelZqcjJual8nHjo7MioqJjJ6Kjg.pKjVRowuKOzHLq7YCT9Z0BAx_eukO7jpn3uHO7PNpRFZ95bktNUXCWcu9uzEVaaCNAeWmVgUaFkg6JSDour1Dg"
         project_root = root_path(ignore_cwd=False)
         self.project_root = project_root
-        self.k = 5
+        self.k = 2
         self.chunker = Chunker(project_root)
         self.history = ""
 
@@ -31,17 +31,22 @@ class Rag:
         :param q: query, that you want to search
         :return: answer to the query
         """
-        self.history = self.history \
-            if self.history != "" and is_need_history(q, history=self.history, yandex_gpt=self.token) else ""
-        q_gen = predict_answer(q, self.history, yandex_gpt=self.token)
+        # self.history = self.history \
+        #    if self.history != "" and is_need_history(q, history=self.history, yandex_gpt=self.token) else ""
+        new_q = is_need_history(q, history=self.history, yandex_gpt=self.token)
+        if new_q.find("no data") == -1:
+            q = new_q
+        else:
+            self.history = ""
+        q_gen = predict_answer(q, yandex_gpt=self.token)
         q_docs = self.search_in_documents(q)
         q_docs = q_docs if isinstance(q_docs, list) else [q_docs]
         q_gen_docs = self.search_in_documents(q_gen)
         q_gen_docs = q_gen_docs if isinstance(q_gen_docs, list) else [q_gen_docs]
         q_docs.extend(q_gen_docs)
-        answer = answer_with_documentation(q_docs, q, history=self.history, yandex_gpt=self.token)
+        answer = answer_with_documentation(q_docs, q, yandex_gpt=self.token)
         self.history += f"Вопрос: {q}| Ответ: {answer}\n"
-        return answer
+        return answer if answer.find("К сожалению, я") == -1 else "К сожалению, я не владею данной информацией."
 
     def search_in_documents(self, q: str) -> list[str]:
         res = self.chunker.find_best_in_db(query=q, k=self.k)
@@ -50,15 +55,5 @@ class Rag:
     def create_db(self):
         self.chunker.create_chunk_db()
 
-
-rag = Rag()
-questions = (["В какие в года правил Генрих 13?",
-              "Как за 5 лет изменилось количество телепрограмм, привлекающих более 4-х млн. зрителей в Великобритании",
-              "А за десять?",
-              "Сколько заработал амазон на рекламе в 2023 году",
-              "А за 4 квартала до 2023 года?"])
-
-for question in questions:
-    start_time = time.time()
-    print(rag.query(question))
-    print(str(time.time() - start_time) + " seconds")
+    def add_file(self, path: str):
+        self.chunker.add_file(path)
