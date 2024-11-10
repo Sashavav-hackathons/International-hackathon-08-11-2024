@@ -133,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Функция для получения ответа от ИИ
 async function getAIResponse(userMessage, sessionID) {
-
   try {
     const response = await fetch("http://localhost:8000/api/query", {
       method: "POST",
@@ -167,6 +166,43 @@ function appendMessage(text, className) {
     // message.textContent = text;
     chatBox.appendChild(message);
     chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const chatBox = document.getElementById('chat-box');
+  const currentUrl = window.location.href;
+  const baseUrl = "http://127.0.0.1:8000/c/";
+
+  // Проверяем, содержит ли URL сессию
+  if (currentUrl.startsWith(baseUrl)) {
+      const sessionId = currentUrl.replace(baseUrl, ""); // Извлекаем uuid из URL
+
+      if (sessionId) {
+          // Загружаем историю чата
+          showTypingIndicator(true);
+          loadChatHistory(sessionId);
+          showTypingIndicator(false);
+      }
+  }
+});
+
+async function loadChatHistory(sessionId) {
+  try {
+    const response = await fetch("http://localhost:8000/", { //пока что хз куда 
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ 
+        id: sessionId
+      })
+    });
+    const data = await response.json();
+    parser(data.response);
+  } catch (error) {
+    console.error("Ошибка при получении ответа от ИИ:", error);
+    return "Извините, произошла ошибка. Попробуйте еще раз.";
+  }
 }
 
 // Функция для динамического изменения высоты поля ввода
