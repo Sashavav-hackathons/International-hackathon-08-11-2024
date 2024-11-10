@@ -3,23 +3,40 @@ from openai import OpenAI
 from build.public_consts import *
 
 
-def answer_with_documentation(doc_array: list[str] | str, query: str, history: str = "", **kwargs) -> str:
+def answer_with_documentation(doc_array: list[str] | str, query: str, **kwargs) -> str:
+    """
+    Функция ответа по документации
+    :param doc_array: Текстовая документация, на которой должен основываться ответ
+    :param query: Текстовый запрос к модели
+    :param kwargs: Выбор между моделями, для работы с yandex_gpt нужно положить свой токен в поле yandex_gpt
+    :return Текстовый ответ на поставленный вопрос по выданной документации
+    """
     rules = RU_ANSWER_WITH_DOCUMENTATION
 
     documentation = "\n".join(doc_array)
-    rules += f"Если запрос не является самостоятельным, то используй историю переписки: {history} " if history else ""
     query = f"Ответь по предоставленной документации на запрос.\nДокументация:{documentation} Запрос: {query}"
     return choose_and_run_model(query=query, rules=rules, **kwargs)
 
 
-def predict_answer(query: str, history: str = "", **kwargs) -> str:
+def predict_answer(query: str, **kwargs) -> str:
+    """
+    Функция прогнозирования ответа
+    :param query: Текстовый запрос к модели
+    :param kwargs: Выбор между моделями, для работы с yandex_gpt нужно положить свой токен в поле yandex_gpt
+    :return Текстовый ответ, представляющий прогноз реального ответа
+    """
     rules = RU_PREDICT_ANSWER
-    rules += (f"Если ты затрудняешься сгенерировать примерный ответ, то постарайся использовать историю переписки: "
-              f"{history} ") if history else ""
     return choose_and_run_model(query=query, rules=rules, **kwargs)
 
 
-def is_need_history(query: str, history: str, **kwargs) -> str:
+def add_context_to_query(query: str, history: str, **kwargs) -> str:
+    """
+    Функция выделения нового вопроса из старых при их взаимосвязи
+    :param query: Текущий вопрос
+    :param history: История предыдущих вопросов
+    :param kwargs: Выбор между моделями, для работы с yandex_gpt нужно положить свой токен в поле yandex_gpt
+    :return Текстовый ответ, являющийся либо синтезом текущего вопроса с предыдущими, либо 'no data'
+    """
     rules = RU_UPDATE_HISTORY
     query = f"Сказанное ранее: {history[history.find(':') + 1:history.find('|')]}. Текущий вопрос: {query}"
     ans = choose_and_run_model(query=query, rules=rules, **kwargs)
@@ -28,6 +45,13 @@ def is_need_history(query: str, history: str, **kwargs) -> str:
 
 
 def choose_and_run_model(query: str, rules: str, **kwargs) -> str:
+    """
+    Функция выбора между моделями и их запуск
+    :param query: Текстовый запрос
+    :param rules: Набор правил, которым должна следовать генеративная модель
+    :param kwargs: Выбор между моделями, для работы с yandex_gpt нужно положить свой токен в поле yandex_gpt
+    :return Текстовый ответ на запрос с известными правилами
+    """
     if kwargs.__contains__("llama"):
         return run_llama_model(query=query, rules=rules, client=kwargs["llama"])
     elif kwargs.__contains__("yandex_gpt"):
@@ -83,4 +107,8 @@ def run_yandex_gpt_model(query: str, rules: str, token: str) -> str:
     response = requests.post(url, headers=headers, json=data)
 
     # Печать результата
-    return response.json()['result']['alternatives'][0]['message']['text']
+    try:
+        return response.json()['result']['alternatives'][0]['message']['text']
+    except Exception as e:
+        raise "Token is expired"
+
