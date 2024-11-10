@@ -4,12 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 from web.server.database.redis_tools import RedisDB
-from web.server.text_pocessing import remove_redundant_newlines
-from uuid import uuid4
-
-import sys
-import os
-
+from web.server.utils import remove_redundant_newlines
 from rag.rag import Rag  
 
 # Инициализация модели и роутера
@@ -26,10 +21,19 @@ class QueryRequest(BaseModel):
     message: str
     id: str
 
+class IdRequest(BaseModel):
+    id: str
+
+@request_router.get("/", response_class=HTMLResponse)
+def create_session(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
 # Создание сессии
-@request_router.get("/")
-def create_session(responce: Response):
-    session_id = responce.body
+@request_router.get("/wayback")
+def create_session(session_id: str):
+    session_data = redis_client.get_pair(session_id)
+    if not session_data:
+        raise HTTPException(status_code=404, detail="Session not found")
     return RedirectResponse(url=f"/c/{session_id}")
 
 # Стандартная страница
@@ -60,7 +64,7 @@ async def session_page(session_id: str):
 @request_router.post("/api/query")
 async def query(data: QueryRequest):
     user_message = data.message
-    remove_redundant_newlines(user_message)
+    user_message = remove_redundant_newlines(user_message)
 
     user_id = data.id
     session_data = redis_client.get_pair(user_id)
@@ -70,12 +74,11 @@ async def query(data: QueryRequest):
     ai_response = model.query(user_message)
     
     # Сохранение данных в Redis
-    redis_client.set_pair(user_id, str(redis_client.get_pair(user_id)) + "/n/n/n/n/n" + user_message)
-    redis_client.set_pair(user_id, str(redis_client.get_pair(user_id)) + "/n/n/n/n/n" + ai_response)
-
+    redis_client.set_pair(user_id, str(redis_client.get_pair(user_id).decode() + "\n\n\n\n\n" + user_message + "\n\n\n\n\n" + ai_response))
     return {"response": ai_response}
 
-# @request_router.post("/api/load_file")
-# async def load_file(file: UploadFile = File(...)):
-#     file_content = await file.read()  # обработка файла
-#     return {"message": "File received", "filename": file.filename}
+# Загрузка файла
+@request_router.post("/api/load_file")
+async def load_file(file: UploadFile = File(...)):
+    file_content = await file.read()  # обработка файла
+    return {"message": "File received", "filename": file.filename}

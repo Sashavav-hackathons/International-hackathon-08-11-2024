@@ -1,7 +1,5 @@
 const userInput = document.getElementById('user-input');
 
-redirectUser();
-
 // Увеличиваем высоту на Shift+Enter
 userInput?.addEventListener("keydown", function(event) {
   if (event.key === 'Enter' && !event.shiftKey) {
@@ -66,10 +64,15 @@ function displaySessionId() {
 //все очень плохо
 async function redirectUser() {
   const sessionId = getSessionId();
+  url = new URL("http://localhost:8000/wayback")
+  url.searchParams.append("session_id", sessionId);
+  console.log("Я тут")
   try {
-    const responseHTML = await fetch("http://localhost:8000/", {
+    const response = await fetch(url, {
       method: "GET",
-      body: sessionId
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
     // window.location.replace(responseHTML);
     // const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
@@ -135,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function getAIResponse(userMessage, sessionID) {
+
   try {
     const response = await fetch("http://localhost:8000/api/query", {
       method: "POST",
@@ -175,3 +179,16 @@ function resetTextareaHeight() {
   const inputElement = document.getElementById("user-input");
   inputElement.style.height = "auto";
 }
+
+function redirectToSession() {
+  if (window.location.pathname === '/') {
+    // Проверяем, есть ли уже сохранённый session_id в localStorage
+    const sessionId = getSessionId();
+    // Если session_id найден, перенаправляем на страницу с этим id
+    window.location.replace(`${window.location.origin}/c/${sessionId}`);
+  }
+}
+
+window.onload = redirectToSession;
+
+console.log(window.location.href)

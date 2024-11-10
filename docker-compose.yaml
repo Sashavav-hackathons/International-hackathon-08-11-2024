@@ -1,34 +1,33 @@
-version: '3.4'
+version: '3.8'
+
 services:
-
-  sever:
-    build: 
+  fastapi:
+    build:
       dockerfile: docker/server/Dockerfile
-
-    restart: always
-    env_file:
-      - .env
+    container_name: fastapi_server
     ports:
-      - 5000:5000
-
-    command: [
-      "uvicorn", "web.server:app --reload",
-      "--host", "0.0.0.0",
-      "==port", "5000"
-    ]
-
+      - "8000:8000"
     depends_on:
       - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - .:/app
+    networks:
+      - app_network
+    image: myimage
+    command: uvicorn web.server.main:app --host 0.0.0.0 --port 8000 --reload
+    working_dir: /app
 
   redis:
-    container_name: redis
-    build: 
-      context: .
-      dockerfile: docker/redis/Dockerfile
-    
-    environment:
-      - REDIS_HOST=localhost
-      - REDIS_PORT=6180
-    
+    image: "redis:6.2"
+    container_name: redis_server
     ports:
-      - 6180:6180
+      - "6379:6379"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge

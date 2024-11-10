@@ -1,12 +1,16 @@
 FROM python:3.10
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+WORKDIR /app
+# Копируем файлы сервера в контейнер
+COPY . /app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 
 RUN pip install poetry
-COPY . /usr/src/app/
-
+RUN pip install fastapi uvicorn
+RUN pip install redis openai
 RUN poetry update
 
+EXPOSE 8000
+
+CMD ["uvicorn", "web.server:app", "--host", "0.0.0.0", "--port", "8000"]
