@@ -1,5 +1,8 @@
 # International-hackathon-08-11-2024
 
+# Обязательные шаги:
+1. Распаковать СОДЕРЖИМОЕ rag/data/chroma_db/chroma.zip в rag/data/chroma_db/ . Итого в директории chroma_db будет 2 файла: chroma.zip, chroma.sqlite и директория fc47d3c8-a991-4d3d-9c75-062f0092d028
+
 # Шаги для запуска RAG-билда:
 1. Получите токен для авторизации в yandex gpt
    1. **Вариант первый:** Создайте в директории build/ файл private consts и внесите туда строчку YANDEX_TOKEN = "Ваш токен"
