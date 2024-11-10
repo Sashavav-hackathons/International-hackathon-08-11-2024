@@ -7,6 +7,8 @@ from web.server.database.redis_tools import RedisDB
 from web.server.utils import remove_redundant_newlines
 from rag.rag import Rag  
 from rag.chunker.chunker import Chunker
+import os
+import tempfile
 
 
 # Инициализация чанкера
@@ -93,5 +95,10 @@ async def query(data: QueryRequest):
 @request_router.post("/api/load_file")
 async def load_file(file: UploadFile = File(...)):
     file_content = await file.read()
-    
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        temp_file_path = tmp_file.name
+        file_content = await file.read()
+        tmp_file.write(file_content)
+    Rag.push_new_files_to_db(temp_file_path)
+    os.remove(temp_file_path)
     return {"message": "File received", "filename": file.filename}
