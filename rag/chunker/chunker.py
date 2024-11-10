@@ -20,7 +20,7 @@ class Chunker:
         self.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
         self.retrieval_engine = None
         self.path = path
-        self.data_path = path + "/rag/data/"
+        self.data_path = path + "\\rag\\data\\"
         self.prepared_data_path = self.data_path + "prepared"
         self.new_data_path = self.data_path + "new_files"
         self.chroma_db_path = self.data_path + "chroma_db/"
@@ -53,7 +53,7 @@ class Chunker:
         Метод добавления всех файлов директории new_files в БД
         :param path: Путь до папки, если она будет отлична от стандартной
         """
-        path = self.data_path if path == "" else path
+        path = self.new_data_path if path == "" else path
         embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
         Settings.embed_model = embed_model
         documents = SimpleDirectoryReader(path).load_data()

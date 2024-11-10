@@ -23,7 +23,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.include_router(request_router)
 
 # Добавление статических файлов
-app.mount("/static", StaticFiles(directory="web/server/static"), name='static')
+app.mount("D:/Backup/Less Important/My programs/Git/International-hackathon-08-11-2024/web/server/static/", StaticFiles(directory="D:/Backup/Less Important/My programs/Git/International-hackathon-08-11-2024/web/server/static"), name='static')
 
 # Запуск приложения через Uvicorn
 if __name__ == '__main__':
