@@ -18,7 +18,8 @@ class Rag:
         # self.client = OpenAI(base_url="http://192.168.1.70:1234/v1", api_key="lm-studio")
         # TODO TOKEN UPDATE
         # self.token = YANDEX_GPT_TOKEN
-        self.token = "t1.9euelZrKyJzKk5CMnpqYm8mdkozPlO3rnpWanJLMlMeXnZGcmc7KypSVis_l9PcHJEJG-e8XEias3fT3R1I_RvnvFxImrM3n9euelZqcjJual8nHjo7MioqJjJ6Kju_8xeuelZqcjJual8nHjo7MioqJjJ6Kjg.pKjVRowuKOzHLq7YCT9Z0BAx_eukO7jpn3uHO7PNpRFZ95bktNUXCWcu9uzEVaaCNAeWmVgUaFkg6JSDour1Dg"
+        self.token = "t1.9euelZqSiYuSx42LlpmJjp6bx5CSnO3rnpWanJLMlMeXnZGcmc7KypSVis_l8_cVQz9G-e9cBm0__t3z91VxPEb571wGbT_-zef1656VmpiRypnHmpyXyJOSj5rNz46K7_zF656VmpiRypnHmpyXyJOSj5rNz46K.IHY3Rxlb7gdBdpeWe_MgwpGS_p4JHs_UZEMLF03e2fCylv8K--iutVT2OSg0rnyGoN06kJsj6Br7q0_EHg1LAg"
+
         project_root = root_path(ignore_cwd=False)
         self.project_root = project_root
         self.k = 2

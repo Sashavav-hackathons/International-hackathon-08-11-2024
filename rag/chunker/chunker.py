@@ -4,6 +4,7 @@ from llama_index.core import SimpleDirectoryReader
 from llama_index.core import StorageContext
 from llama_index.core import VectorStoreIndex
 from llama_index.core.node_parser import SemanticSplitterNodeParser
+from llama_index.core.schema import NodeWithScore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
@@ -46,19 +47,13 @@ class Chunker:
     def add_file(self, path: str):
         embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
         Settings.embed_model = embed_model
-        semantic_embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
-        semantic_splitter = SemanticSplitterNodeParser(
-            buffer_size=2,
-            embed_model=semantic_embed_model
-        )
         documents = SimpleDirectoryReader(self.new_data_path).load_data()
-        nodes = semantic_splitter.get_nodes_from_documents(documents)
         db = chromadb.PersistentClient(path=self.chroma_db_path)
         chroma_collection = db.get_or_create_collection(self.chroma_collection_name)
         vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
-        VectorStoreIndex(
-            nodes=nodes,
+        VectorStoreIndex.from_documents(
+            documents=documents,
             storage_context=storage_context,
             show_progress=True
         )
@@ -94,12 +89,16 @@ class Chunker:
         self.init_db(k)
         response = self.retrieval_engine.retrieve(query)
 
-        def make_item(item):
+        def make_item(item : NodeWithScore) -> str:
             # print(item.score, end=" ")
             if item.score < min_score:
                 return ""
-            s = (f"Файл {item.metadata['file_name']}, страница {item.metadata['page_label']} | "
-                 f"Дата создания: {item.metadata['creation_date']}")
+            if item.metadata.__contains__("page_label"):
+                s = (f"Файл {item.metadata['file_name']}, страница {item.metadata['page_label']} | "
+                     f"Дата создания: {item.metadata['creation_date']}")
+            else:
+                s = (f"Файл {item.metadata['file_name']} | "
+                     f"Дата создания: {item.metadata['creation_date']}")
             s += f"\nСодержание файла: {item.text}"
             return s
 
