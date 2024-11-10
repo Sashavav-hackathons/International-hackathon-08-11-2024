@@ -1,3 +1,4 @@
+
 import chromadb
 from get_project_root import root_path
 from llama_index.core import Settings
@@ -19,10 +20,10 @@ class Chunker:
         self.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
         self.retrieval_engine = None
         self.path = path
-        self.data_path = path + "\\rag\\data\\"
+        self.data_path = path + "/rag/data/"
         self.prepared_data_path = self.data_path + "prepared"
         self.new_data_path = self.data_path + "new_files"
-        self.chroma_db_path = self.data_path + "chroma_db"
+        self.chroma_db_path = self.data_path + "chroma_db/"
         self.chroma_collection_name = "default"
         self.host = "http://localhost:1234/v1"
         self.index = None
@@ -56,7 +57,7 @@ class Chunker:
         embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-m3")
         Settings.embed_model = embed_model
         documents = SimpleDirectoryReader(path).load_data()
-        db = chromadb.PersistentClient(path=self.chroma_db_path)
+        db = chromadb.PersistentClient(path="rag/data/chroma_db/chroma.sqlite3")
         chroma_collection = db.get_or_create_collection(self.chroma_collection_name)
         vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
@@ -81,7 +82,7 @@ class Chunker:
         nodes = semantic_splitter.get_nodes_from_documents(documents)
 
         # Connect to the database
-        db = chromadb.PersistentClient(path=self.chroma_db_path)
+        db = chromadb.PersistentClient(path="rag/data/chroma_db/chroma.sqlite3")
         chroma_collection = db.get_or_create_collection(self.chroma_collection_name)
         vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
         storage_context = StorageContext.from_defaults(vector_store=vector_store)

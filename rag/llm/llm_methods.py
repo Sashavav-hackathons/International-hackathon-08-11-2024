@@ -38,7 +38,7 @@ def add_context_to_query(query: str, history: str, **kwargs) -> str:
     :return Текстовый ответ, являющийся либо синтезом текущего вопроса с предыдущими, либо 'no data'
     """
     rules = RU_UPDATE_HISTORY
-    query = f"Сказанное ранее: {history[history.find(':') + 1:history.find('|')]}. Текущий вопрос: {query}"
+    query = f"Сказанное ранее: {history[history.find(':') + 1:history.find('|')]}. Текущий вопрос: " + query
     ans = choose_and_run_model(query=query, rules=rules, **kwargs)
     # print(ans)
     return ans
@@ -111,4 +111,3 @@ def run_yandex_gpt_model(query: str, rules: str, token: str) -> str:
         return response.json()['result']['alternatives'][0]['message']['text']
     except Exception as e:
         raise "Token is expired"
-

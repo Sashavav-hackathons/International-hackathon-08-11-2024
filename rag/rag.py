@@ -1,7 +1,8 @@
-from get_project_root import root_path
 
-from chunker.chunker import Chunker
-from llm.llm_methods import answer_with_documentation, predict_answer, add_context_to_query
+from rag.llm.llm_methods import answer_with_documentation, predict_answer, add_context_to_query
+from rag.chunker.chunker import Chunker
+from get_project_root import root_path
+# from build.local_variables import YANDEX_GPT_TOKEN
 
 
 class Rag:
@@ -47,3 +48,7 @@ class Rag:
         :param chunker: Объект класса Chunker для работы с векторной БД
         """
         chunker.add_file()
+
+    def push_new_files_to_db(project_root: str = root_path(ignore_cwd=False)):
+        chunker = Chunker(project_root)
+        chunker.add_file("")
