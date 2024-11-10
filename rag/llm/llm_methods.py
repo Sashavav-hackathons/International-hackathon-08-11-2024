@@ -1,64 +1,57 @@
 import requests
 from openai import OpenAI
+from build.public_consts import *
 
 
 def answer_with_documentation(doc_array: list[str] | str, query: str, **kwargs) -> str:
     """
-    Helper function for answering on the question by the documentation that is provided.
-    :param doc_array: documentation strings, that the result will be based on
-    :param query: query with a question that is going to be searched in documentation strings
-    :param client: language model that you want to generate text
-    :return: string with an answer
+    Функция ответа по документации
+    :param doc_array: Текстовая документация, на которой должен основываться ответ
+    :param query: Текстовый запрос к модели
+    :param kwargs: Выбор между моделями, для работы с yandex_gpt нужно положить свой токен в поле yandex_gpt
+    :return Текстовый ответ на поставленный вопрос по выданной документации
     """
-    rules = (
-        "Always follow the ruleset.\n"
-        "Ruleset: \n"
-        "Style:"
-        " Always answer on russian. "
-        "Formulate answers in the context of the documentation provided. "
-        "Format text like this: Alex has 20 friends, his friend says \"Alex has 20 friends\"[1]\n[1] - "
-        "from 2.pdf on page 3, dated on 2020-11-20. "
-        "Rules: "
-        "If you do not know the answer, you should say: 'Извините, я не обладаю достаточной информацией, "
-        "чтобы ответить на данный запрос. '\n And nothing else. "
-        "Formulate responses in a user-friendly way (e.g., a list if there are multiple items in the response). "
-        "Provide examples of use cases if they are present in the documentation. "
-        "Point to sections of the documentation that may be helpful in further exploring the question. "
-        "If there is more than one answer choice in the documentation, choose the most appropriate option. "
-        "If the question asked is not related to the previous question, the dialog history should be cleared. "
-        "Use only information from the documentation for your answers. Do not use data from your past trainings. "
-        "If no answer to the question posed is found in the documentation provided, then report: "
-        "'The documentation provided does not answer the question you have asked' and nothing else. "
-        "Respond concisely to the given query without deviations. "
-        "Include with your answer a link to which file the answer is located, on which page, "
-        "and the date the file was created. For example: Question: What is the capital of Portugal? "
-        "Your answer: Answer to the question: Lisbon. File name: file.name. "
-        "The date the document was created: 2024-01-01. Page: 2. "
-    )
+    rules = RU_ANSWER_WITH_DOCUMENTATION
 
     documentation = "\n".join(doc_array)
-    query = f"Документация:{documentation} Запрос: {query}"
+    query = f"Ответь по предоставленной документации на запрос.\nДокументация:{documentation} Запрос: {query}"
     return choose_and_run_model(query=query, rules=rules, **kwargs)
 
 
 def predict_answer(query: str, **kwargs) -> str:
     """
-    Function that predicts the answer even to make a better search
-    :param query: string with a query
-    :param client: OpenAI language model that you want to generate text
-    :return: string with an answer
+    Функция прогнозирования ответа
+    :param query: Текстовый запрос к модели
+    :param kwargs: Выбор между моделями, для работы с yandex_gpt нужно положить свой токен в поле yandex_gpt
+    :return Текстовый ответ, представляющий прогноз реального ответа
     """
-    rules = (
-        "Always answer on russian. "
-        "Assume that you know an answer for my question. "
-        "Try to predict the answer to my question. "
-        "Do not tell me that you don't know the correct answer, cause you don't. "
-        "Say only the predicted answer and nothing else. "
-    )
+    rules = RU_PREDICT_ANSWER
     return choose_and_run_model(query=query, rules=rules, **kwargs)
 
 
+def add_context_to_query(query: str, history: str, **kwargs) -> str:
+    """
+    Функция выделения нового вопроса из старых при их взаимосвязи
+    :param query: Текущий вопрос
+    :param history: История предыдущих вопросов
+    :param kwargs: Выбор между моделями, для работы с yandex_gpt нужно положить свой токен в поле yandex_gpt
+    :return Текстовый ответ, являющийся либо синтезом текущего вопроса с предыдущими, либо 'no data'
+    """
+    rules = RU_UPDATE_HISTORY
+    query = f"Сказанное ранее: {history[history.find(':') + 1:history.find('|')]}. Текущий вопрос: {query}"
+    ans = choose_and_run_model(query=query, rules=rules, **kwargs)
+    # print(ans)
+    return ans
+
+
 def choose_and_run_model(query: str, rules: str, **kwargs) -> str:
+    """
+    Функция выбора между моделями и их запуск
+    :param query: Текстовый запрос
+    :param rules: Набор правил, которым должна следовать генеративная модель
+    :param kwargs: Выбор между моделями, для работы с yandex_gpt нужно положить свой токен в поле yandex_gpt
+    :return Текстовый ответ на запрос с известными правилами
+    """
     if kwargs.__contains__("llama"):
         return run_llama_model(query=query, rules=rules, client=kwargs["llama"])
     elif kwargs.__contains__("yandex_gpt"):
@@ -109,9 +102,13 @@ def run_yandex_gpt_model(query: str, rules: str, token: str) -> str:
             }
         ]
     }
-
+    # print(query)
     # Выполнение запроса
     response = requests.post(url, headers=headers, json=data)
 
     # Печать результата
-    return response.json()['result']['alternatives'][0]['message']['text']
+    try:
+        return response.json()['result']['alternatives'][0]['message']['text']
+    except Exception as e:
+        raise "Token is expired"
+
