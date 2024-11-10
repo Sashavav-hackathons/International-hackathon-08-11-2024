@@ -1,12 +1,8 @@
-import os
-import time
 
-from openai import OpenAI
-
-from rag.llm.llm_methods import answer_with_documentation, predict_answer, is_need_history
+from rag.llm.llm_methods import answer_with_documentation, predict_answer, add_context_to_query
 from rag.chunker.chunker import Chunker
 from get_project_root import root_path
-from build.local_variables import YANDEX_GPT_TOKEN
+# from build.local_variables import YANDEX_GPT_TOKEN
 
 
 class Rag:

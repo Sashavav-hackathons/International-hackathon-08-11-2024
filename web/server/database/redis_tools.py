@@ -22,3 +22,7 @@ class RedisDB:
     def get_pair(cls, name):
         return cls.__redis_connect.get(name)
     
+    @classmethod
+    def is_exists(cls, name):
+        return cls.__redis_connect.exists(name)
+    
