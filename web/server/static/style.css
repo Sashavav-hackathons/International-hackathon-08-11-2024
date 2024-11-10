@@ -16,17 +16,18 @@ body {
 
 .chat-container {
     width: 70vw;
-    height: 70vh;
+    height: 100vh;
     max-width: 100%;
     background-color: #333;
     border-radius: 10px;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 .chat-box {
     padding: 15px;
-    min-height: 50vh;
-    max-height: 100%;
+    min-height: 80vh;
+    height: auto;
+    /* max-height: 70%; */
     overflow-y: auto;
     background-color: #1a1a1a;
 }
@@ -54,26 +55,26 @@ body {
 .input-container {
     justify-content: flex-end;
     display: flex;
-    border-top: 1px solid #444;
+    height: auto;
+    min-height: 40px;
 }
 
-input[type="text"] {
+.input-box{
     text-align: right;
-    flex: 1;
-    padding: 10px;
-    background-color: #222;
     border: none;
-    color: white;
     font-size: 16px;
-    resize: none; /* Запрещаем пользователю изменять размер вручную */
-    overflow-y: hidden; /* Скрываем вертикальную полосу прокрутки */
-    min-height: 40px; /* Минимальная высота */
-    max-height: 150px; /* Максимальная высота */
-
-}
-
-input[type="text"]:focus {
-    outline: none;
+    overflow-y: auto;
+    /* min-height: 40px; */
+    /* Минимальная высота */
+    max-height: 13vh;
+    /* Максимальная высота */
+    flex: 1;
+    background-color: #222;
+    color: white;
+    resize: none;
+    /* Запрещаем пользователю изменять размер вручную */
+    width: 70vh;
+    outline-style: none;
 }
 
 button {

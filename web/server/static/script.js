@@ -1,23 +1,14 @@
-const userInput = document.getElementById('user-input');
 
-redirectUser();
+// function insertNewLine() {
+//   // Добавляем перенос строки в текущее положение курсора
+//   const cursorPosition = userInput.selectionStart;
+//   const text = userInput.value;
+//   userInput.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
+//   userInput.selectionStart = userInput.selectionEnd = cursorPosition + 1;
+//   adjustTextareaHeight(); // Увеличиваем высоту текстового поля
+// }
 
-// Увеличиваем высоту на Shift+Enter
-userInput?.addEventListener("keydown", function(event) {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault();
-    sendMessage();
-}
-}, false);
-
-// Увеличиваем высоту на Shift+Enter
-userInput?.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter' && event.shiftKey) {
-        adjustTextareaHeight();
-    }
-}, false);
-
-// 
+//
 function sendMessage() {
     const inputElement = document.getElementById("user-input");
     const messageText = inputElement.value.trim();
@@ -63,45 +54,6 @@ function displaySessionId() {
   // session.textContent = `Сессия: ${sessionId}`;
 }
 
-//все очень плохо
-async function redirectUser() {
-  const sessionId = getSessionId();
-  try {
-    const responseHTML = await fetch("http://localhost:8000/", {
-      method: "GET",
-      body: sessionId
-    });
-    // window.location.replace(responseHTML);
-    // const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
-    //   method: "GET"
-    // });
-    // parser(responseSTR)
-
-  } catch (error) {
-    console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
-    return "Извините, произошла ошибка. Попробуйте еще раз.";
-  }
-}
-
-// async function parse_history(){
-//   const sessionId = getSessionId();
-
-//   try {
-//     const responseHTML = await fetch("http://localhost:8000/с/sessionId", {
-//       method: "GET"
-//     });
-//     window.location.replace(responseHTML);
-//     const responseSTR = await fetch("http://localhost:8000/с/sessionId", {
-//       method: "GET"
-//     });
-//     parser(responseSTR)
-
-//   } catch (error) {
-//     console.error("Ошибка при получении ответа от ИИ:", error); // фигня дебаг
-//     return "Извините, произошла ошибка. Попробуйте еще раз.";
-//   }
-// }
-
 function parser(inputString) {
   let to_parse = inputString.split('\n\n\n\n\n');
   let flag = 'bot-message'
@@ -115,23 +67,30 @@ function parser(inputString) {
 
 document.addEventListener('DOMContentLoaded', () => {
   displaySessionId(); // Отображаем номер сессии при загрузке страницы
-  userInput?.addEventListener("input", adjustTextareaHeight());
-  // Обработка нажатия клавиш в поле ввода
-  userInput?.addEventListener('keydown', function(e) {
-    console.log("hui");
-    if (e.key === 'Enter') {
-        if (e.shiftKey) {
-            // Если нажаты Shift + Enter, добавляем перенос строки и увеличиваем высоту поля
-            e.preventDefault();
-            userInput.value += '\n';
-            adjustTextareaHeight();
-        } else {
-            // Если только Enter, отправляем сообщение
-            e.preventDefault();
-            sendMessage();
-        }
+  const userInput = document.getElementById('user-input');
+  userInput?.addEventListener("input", adjustTextareaHeight);
+
+  userInput.addEventListener('keydown', function(e) {
+    // Проверка нажатия клавиш для Enter и Shift + Enter
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+
+    } else if (e.key === "Enter") {
+      e.preventDefault(); // предотвращаем стандартное поведение Enter
+      insertNewLine();
     }
-  });
+  
+  function insertNewLine() {
+    // Добавляем перенос строки в текущее положение курсора
+    const cursorPosition = userInput.selectionStart;
+    const text = userInput.value;
+    userInput.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
+    userInput.selectionStart = userInput.selectionEnd = cursorPosition + 1;
+    adjustTextareaHeight(); // Увеличиваем высоту текстового поля
+  }
+
+});
 });
 
 async function getAIResponse(userMessage, sessionID) {
